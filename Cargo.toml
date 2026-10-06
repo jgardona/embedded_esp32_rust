@@ -1,0 +1,45 @@
+[package]
+name = "esp32-examples"
+version = "0.1.0"
+authors = ["jgardona"]
+edition = "2021"
+resolver = "2"
+rust-version = "1.77"
+
+[[bin]]
+name = "blinkled"
+harness = false # necessário para o rust-analyzer não reclamar (não usamos o test harness padrão)
+path = "src/blinkled.rs"
+
+[[bin]]
+name = "adc"
+path = "src/adc.rs"
+
+[[bin]]
+name = "breathing_led"
+path = "src/breathing_led.rs"
+
+[[bin]]
+name = "rxtx"
+path = "src/rxtx.rs"
+
+[[bin]]
+name = "rxtx_input"
+path = "src/rxtx_input.rs"
+
+[profile.release]
+opt-level = "s"
+
+[profile.dev]
+debug = true # símbolos de debug não aumentam o tamanho na flash, então deixamos ligado
+opt-level = "z"
+
+[features]
+default = []
+
+[dependencies]
+log = { version = "0.4", default-features = false }
+esp-idf-svc = { version = "0.51" }
+
+[build-dependencies]
+embuild = "0.33"
