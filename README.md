@@ -1,3 +1,7 @@
+<div align="center">
+  <img src="assets/thumbnail.png">
+</div>
+
 # Exemplos de Firmware para ESP32 usando Rust
 
 Coleção de exemplos de firmware em Rust para ESP32 (Xtensa), usando o
