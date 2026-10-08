@@ -378,6 +378,10 @@ permissão, veja a seção de troubleshooting abaixo.
 
 ## Gerando `.bin` para o simulador (PICSimLab)
 
+<div align="center">
+  <img src="assets/picsimlab.png">
+</div>
+
 O [PICSimLab](https://github.com/lcgamboa/picsimlab) simula o ESP32 com
 QEMU e **não aceita o ELF** gerado pelo `cargo build`: ele precisa de uma
 imagem completa da flash, em formato `.bin`. O `espflash` faz essa
