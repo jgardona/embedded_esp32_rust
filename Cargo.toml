@@ -27,6 +27,10 @@ path = "src/rxtx.rs"
 name = "rxtx_input"
 path = "src/rxtx_input.rs"
 
+[[bin]]
+name = "lcd1602"
+path = "src/lcd1602.rs"
+
 [profile.release]
 opt-level = "s"
 
@@ -40,6 +44,8 @@ default = []
 [dependencies]
 log = { version = "0.4", default-features = false }
 esp-idf-svc = { version = "0.51" }
+hd44780-driver = "*"
+esp-idf-hal = "0.45"
 
 [build-dependencies]
 embuild = "0.33"

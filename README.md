@@ -16,6 +16,7 @@ dentro do mesmo crate:
 | `breathing_led` | Efeito "respiração" (fade in/out) com PWM (LEDC) no GPIO2      |
 | `rxtx`          | Imprime o tempo de execução na serial a cada 1 s               |
 | `rxtx_input`    | Lê linhas digitadas no monitor serial (stdin) e faz eco        |
+| `lcd1602`       | Escreve texto e um contador num LCD1602 via I2C (PCF8574)      |
 
 ## Pré-requisitos de sistema
 
@@ -365,6 +366,7 @@ cargo run --bin adc
 cargo run --bin breathing_led
 cargo run --bin rxtx
 cargo run --bin rxtx_input
+cargo run --bin lcd1602
 ```
 
 Isso compila (se necessário), grava via `espflash` e abre o monitor
@@ -373,6 +375,49 @@ sair.
 
 Se a porta serial não for detectada automaticamente ou der erro de
 permissão, veja a seção de troubleshooting abaixo.
+
+## Gerando `.bin` para o simulador (PICSimLab)
+
+O [PICSimLab](https://github.com/lcgamboa/picsimlab) simula o ESP32 com
+QEMU e **não aceita o ELF** gerado pelo `cargo build`: ele precisa de uma
+imagem completa da flash, em formato `.bin`. O `espflash` faz essa
+conversão:
+
+```bash
+cargo build --release --bin lcd1602
+espflash save-image --chip esp32 --merge --flash-size 4mb \
+    target/xtensa-esp32-espidf/release/lcd1602 lcd1602.bin
+```
+
+Troque `lcd1602` pelo nome do exemplo desejado. As duas opções são
+obrigatórias para o PICSimLab:
+
+- `--merge`: junta bootloader, tabela de partições e aplicação num único
+  arquivo, gravado a partir do endereço `0x0`. Sem ela, o `espflash`
+  gera só a imagem da aplicação, que não dá boot sozinha no simulador.
+- `--flash-size 4mb`: preenche (padding) o arquivo até o tamanho da
+  flash. O QEMU só aceita imagens de exatamente 2, 4, 8 ou 16 MB. O
+  arquivo final deve ter **4.194.304 bytes**.
+
+Layout do `.bin` gerado:
+
+| Offset    | Conteúdo             |
+|-----------|----------------------|
+| `0x1000`  | bootloader           |
+| `0x8000`  | tabela de partições  |
+| `0x10000` | aplicação (firmware) |
+
+Depois, carregue o `.bin` na placa **ESP32-DevKitC** do PICSimLab pelo
+menu **File**. **Recarregue o arquivo sempre que recompilar**: o
+PICSimLab não percebe sozinho que o `.bin` mudou e continua rodando a
+versão antiga.
+
+O mesmo `.bin` também serve para gravar numa placa real, no endereço
+`0x0`:
+
+```bash
+espflash write-bin 0x0 lcd1602.bin
+```
 
 ## Troubleshooting
 
@@ -406,6 +451,13 @@ GPIO2 ──[resistor 220-330Ω]──▶|── GND
 
 Nunca ligue um LED direto no GPIO sem resistor em série — risco de
 queimar o LED ou danificar o pino.
+
+**No PICSimLab, o LCD (ou outro periférico) mostra lixo ou comportamento
+antigo**: antes de mexer no código, recarregue o `.bin` no PICSimLab. O
+simulador continua rodando a imagem carregada anteriormente até que ela
+seja recarregada. Confira também se o `.bin` foi gerado com `--merge` e
+`--flash-size 4mb` (veja
+[Gerando `.bin` para o simulador](#gerando-bin-para-o-simulador-picsimlab)).
 
 **`cannot find 'log' in 'esp_idf_svc'`**: verifique se a dependência
 `esp-idf-svc` no `Cargo.toml` **não** está com `default-features =

@@ -6,3 +6,5 @@ blinkled.bin
 blinkled.efuse
 breathing_led.bin
 .gitignore
+lcd1602.bin
+lcd1602.efuse
